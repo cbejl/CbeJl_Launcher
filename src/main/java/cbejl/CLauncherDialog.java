@@ -130,9 +130,9 @@ public class CLauncherDialog extends JDialog {
         componentMap.forEach((key, value) -> {
             if(value instanceof JComponents.CheckBox) {
                 checkboxesMap.put(key, value.getDefaultState());
-            } else if (value instanceof JComponents.FileChooser || (value instanceof TextField && !value.getDefaultState())) {
+            } else if (value instanceof JComponents.FileChooser || (value instanceof JComponents.TextField && !value.getDefaultState())) {
                 stringsMap.put(key, "");
-            } else if (value instanceof TextField && value.getDefaultState()) {
+            } else if (value instanceof JComponents.TextField && value.getDefaultState()) {
                 integerMap.put(key, 0);
             }
         });

@@ -6,7 +6,7 @@
 
     <groupId>cbejl</groupId>
     <artifactId>cbejl_launcher</artifactId>
-    <version>1.1-alpha</version>
+    <version>1.2-alpha</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
