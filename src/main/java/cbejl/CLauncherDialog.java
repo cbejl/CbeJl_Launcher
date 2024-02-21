@@ -5,15 +5,17 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class CLauncherDialog extends JDialog {
+public class CLauncherDialog<T> extends JDialog {
     private JPanel panel;
     private Map<String, JComponentsGetters> componentMap;
     private Map<String, Boolean> checkboxesMap;
     private Map<String, String> stringsMap;
     private Map<String, Integer> integerMap;
+    private Map<String, T> objectsMap;
     private boolean isDone;
 
     public CLauncherDialog(Map<String, JComponentsGetters> componentMap) {
@@ -35,10 +37,11 @@ public class CLauncherDialog extends JDialog {
         this.componentMap = componentMap;
         this.setTitle(title);
         this.setSize(width, height);
-        this.setLocation((dimension.width/2) - width/2, (dimension.height/2) - height/2);
+        this.setLocation((dimension.width / 2) - width / 2, (dimension.height / 2) - height / 2);
         this.checkboxesMap = new TreeMap<>();
-        this.stringsMap = new TreeMap<>();
-        this.integerMap = new TreeMap<>();
+        this.stringsMap = new LinkedHashMap<>();
+        this.integerMap = new LinkedHashMap<>();
+        this.objectsMap = new LinkedHashMap<>();
         this.panel = new JPanel();
         mapEmptynator();    //создаем пустые мапы, на случай если пользователь ничего не укажет
         launchLauncher();
@@ -46,7 +49,7 @@ public class CLauncherDialog extends JDialog {
 
     private void launchLauncher() {
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        panel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        panel.setLayout(new FlowLayout());
         componentGenerator();       //генерируем компоненты
 
         JButton wDone = new JButton("ПУСК");
@@ -64,7 +67,7 @@ public class CLauncherDialog extends JDialog {
 
     private void componentGenerator() {         //генерируем компоненты
         this.componentMap.forEach((key, value) -> {
-            if(value instanceof JComponents.CheckBox) {
+            if (value instanceof JComponents.CheckBox) {
                 JCheckBox jCheckBox = new JCheckBox(value.getLabel(), value.getDefaultState());
                 jCheckBox.addItemListener(e -> checkboxesMap.put(key, e.getStateChange() == ItemEvent.SELECTED));
                 panel.add(jCheckBox);
@@ -79,7 +82,7 @@ public class CLauncherDialog extends JDialog {
                 jb.addActionListener(e -> {
                     JFileChooser fc = new JFileChooser();
                     fc.setDialogTitle(value.getLabel());
-                    if(fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+                    if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                         tf.setText(fc.getSelectedFile() + "");
                         stringsMap.put(key, tf.getText());
                     }
@@ -93,17 +96,17 @@ public class CLauncherDialog extends JDialog {
                 JPanel jp = new JPanel();
                 jp.setLayout(new BorderLayout());
                 JLabel jl = new JLabel(value.getLabel());
-                JTextField tf = new JTextField( 16);
+                JTextField tf = new JTextField(16);
                 tf.setToolTipText(key);
                 tf.addKeyListener(new KeyAdapter() {
                     @Override
                     public void keyTyped(KeyEvent e) {
-                        if(value.getMaxLength() <= tf.getText().length()) {
+                        if (value.getMaxLength() <= tf.getText().length()) {
                             e.consume();
                         }
-                        if(value.getDefaultState()) {
+                        if (value.getDefaultState()) {
                             char c = e.getKeyChar();
-                            if ( ((c < '0') || (c > '9')) && (c != KeyEvent.VK_BACK_SPACE)) {
+                            if (((c < '0') || (c > '9')) && (c != KeyEvent.VK_BACK_SPACE)) {
                                 e.consume();  //если указано не число - игнорируем нажатие
                             }
                         }
@@ -111,7 +114,7 @@ public class CLauncherDialog extends JDialog {
 
                     @Override
                     public void keyReleased(KeyEvent e) {
-                        if(value.getDefaultState()) {
+                        if (value.getDefaultState()) {
                             integerMap.put(key, Integer.valueOf(tf.getText()));
                         } else {
                             stringsMap.put(key, tf.getText());
@@ -122,18 +125,27 @@ public class CLauncherDialog extends JDialog {
                 jp.add(tf, BorderLayout.CENTER);
                 jp.setBorder(BorderFactory.createLineBorder(Color.darkGray));
                 panel.add(jp);
+            } else if (value instanceof JComponents.DropDownMenu) {
+                JComboBox jcb = new JComboBox<>(value.getObjects());
+                jcb.addActionListener(e -> {
+                    objectsMap.put(key, (T) jcb.getSelectedItem());
+                });
+                panel.add(jcb);
             }
         });
     }
 
     private void mapEmptynator() {      //создаем пустые мапы, на случай если пользователь ничего не укажет
         componentMap.forEach((key, value) -> {
-            if(value instanceof JComponents.CheckBox) {
+            if (value instanceof JComponents.CheckBox) {
                 checkboxesMap.put(key, value.getDefaultState());
-            } else if (value instanceof JComponents.FileChooser || (value instanceof JComponents.TextField && !value.getDefaultState())) {
+            } else if (value instanceof JComponents.FileChooser ||
+                    (value instanceof JComponents.TextField && !value.getDefaultState())) {
                 stringsMap.put(key, "");
             } else if (value instanceof JComponents.TextField && value.getDefaultState()) {
                 integerMap.put(key, 0);
+            } else if (value instanceof JComponents.DropDownMenu) {
+                objectsMap.put(key, (T) value.getObjects());
             }
         });
     }
@@ -148,6 +160,9 @@ public class CLauncherDialog extends JDialog {
 
     public Map<String, Integer> getIntegerMap() {
         return integerMap;
+    }
+    public Map<String, T> getObjectsMap() {
+        return objectsMap;
     }
 
     public boolean isDone() {

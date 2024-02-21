@@ -10,6 +10,10 @@ class JComponents {
             this("", false);
         }
 
+        public CheckBox(boolean triggered) {
+            this("", triggered);
+        }
+
         public CheckBox(String label) {
             this(label, false);
         }
@@ -33,10 +37,17 @@ class JComponents {
         public int getMaxLength() {
             return -1;
         }
+
+        @Override
+        public <T> T[] getObjects() {
+            return null;
+        }
+
     }
 
     static class Label implements JComponentsGetters {
         private String label;
+
         public Label(String label) {
             this.label = label;
         }
@@ -55,10 +66,17 @@ class JComponents {
         public int getMaxLength() {
             return -1;
         }
+
+        @Override
+        public <T> T[] getObjects() {
+            return null;
+        }
+
     }
 
     static class FileChooser implements JComponentsGetters {
         private String label;
+
         public FileChooser(String buttonLabel) {
             this.label = buttonLabel;
         }
@@ -77,6 +95,12 @@ class JComponents {
         public int getMaxLength() {
             return -1;
         }
+
+        @Override
+        public <T> T[] getObjects() {
+            return null;
+        }
+
     }
 
     static class TextField implements JComponentsGetters {
@@ -87,6 +111,7 @@ class JComponents {
         public TextField() {
             this("", -1);
         }
+
         public TextField(int maxSymbols) {
             this("", maxSymbols);
         }
@@ -94,20 +119,25 @@ class JComponents {
         public TextField(String text) {
             this(text, -1);
         }
+
         public TextField(String text, int maxSymbols) {
             this.label = text;
             this.maxSymbols = maxSymbols;
             this.isNumeric = false;
         }
+
         public TextField(boolean isNumeric) {
             this("", -1, isNumeric);
         }
+
         public TextField(int maxSymbols, boolean isNumeric) {
             this("", maxSymbols, isNumeric);
         }
+
         public TextField(String text, boolean isNumeric) {
             this(text, -1, isNumeric);
         }
+
         public TextField(String text, int maxSymbols, boolean isNumeric) {
             this.label = text;
             this.maxSymbols = maxSymbols;
@@ -128,18 +158,52 @@ class JComponents {
         public int getMaxLength() {
             return maxSymbols;
         }
+
+        @Override
+        public <T> T[] getObjects() {
+            return null;
+        }
+
     }
 
-/*
-    LABEL,
-    FILE_CHOOSER,
-    TEXT_FIELD,
-    INT_FIELD,*/
+    static class DropDownMenu<T> implements JComponentsGetters {
+        private String[] menuItems;
+        private T[] objects;
+
+        public DropDownMenu(T[] menuItems) {
+
+            this.objects = menuItems;
+        }
+
+        @Override
+        public boolean getDefaultState() {
+            return false;
+        }
+
+        @Override
+        public String getLabel() {
+            return null;
+        }
+
+        @Override
+        public int getMaxLength() {
+            return -1;
+        }
+
+        @Override
+        public T[] getObjects() {
+            return objects;
+        }
+    }
 
 }
 
 interface JComponentsGetters {
     boolean getDefaultState();
+
     String getLabel();
+
     int getMaxLength();
+
+    <T> T[] getObjects();
 }
