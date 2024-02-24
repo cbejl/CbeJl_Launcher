@@ -1,6 +1,5 @@
 package cbejl;
-
-class JComponents {
+public class JComponents {
 
     static class CheckBox implements JComponentsGetters {
         private boolean triggered;
@@ -167,7 +166,6 @@ class JComponents {
     }
 
     static class DropDownMenu<T> implements JComponentsGetters {
-        private String[] menuItems;
         private T[] objects;
 
         public DropDownMenu(T[] menuItems) {
@@ -198,12 +196,3 @@ class JComponents {
 
 }
 
-interface JComponentsGetters {
-    boolean getDefaultState();
-
-    String getLabel();
-
-    int getMaxLength();
-
-    <T> T[] getObjects();
-}
